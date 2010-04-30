@@ -19,8 +19,8 @@ along with http://github.com/tario/ruby-cymbol.  if not, see <http://www.gnu.org
 
 =end
 
-require "shared"
-require "objdump"
+require "ruby-cymbol/shared"
+require "ruby-cymbol/objdump"
 
 module Cymbol
   def self.resolv( symbol_name )
@@ -33,7 +33,7 @@ module Cymbol
       shared_name = debug_info_name
     end
 
-    objdump = Cymbol::ObjDump.new( shared_name )
+    objdump = Cymbol::Objdump.new( shared_name )
     match_symbols = objdump.symbols.select{|s| s.name == symbol_name }
 
     match_symbols.first.offset
