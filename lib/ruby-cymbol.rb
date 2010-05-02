@@ -47,7 +47,7 @@ module Cymbol
       @objdump = Cymbol::Objdump.new( shared_name )
     end
 
-    def resolv
+    def resolv( symbol_name )
       match_symbols = @objdump.symbols.select{|s| s.name == symbol_name }
 
       first_symbol = match_symbols.first
