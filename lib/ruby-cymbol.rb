@@ -33,25 +33,34 @@ module Cymbol
     end
   end
 
+  class Resolv
+    def initialize
+      shared_name = Cymbol.ruby_shared_name
+
+      # Use debug info of libruby if exists
+      debug_info_name = "/usr/lib/debug/" + shared_name
+
+      if File.exist?(debug_info_name)
+        shared_name = debug_info_name
+      end
+
+      @objdump = Cymbol::Objdump.new( shared_name )
+    end
+
+    def resolv
+      match_symbols = @objdump.symbols.select{|s| s.name == symbol_name }
+
+      first_symbol = match_symbols.first
+
+      unless first_symbol
+        raise SymbolNotFound.new(symbol_name)
+      end
+
+      match_symbols.first.offset
+    end
+  end
+
   def self.resolv( symbol_name )
-    shared_name = Cymbol.ruby_shared_name
-
-    # Use debug info of libruby if exists
-    debug_info_name = "/usr/lib/debug/" + shared_name
-
-    if File.exist?(debug_info_name)
-      shared_name = debug_info_name
-    end
-
-    objdump = Cymbol::Objdump.new( shared_name )
-    match_symbols = objdump.symbols.select{|s| s.name == symbol_name }
-
-    first_symbol = match_symbols.first
-
-    unless first_symbol
-      raise SymbolNotFound.new(symbol_name)
-    end
-
-    match_symbols.first.offset
+    Cymbol::Resolv.new.resolv( symbol_name )
   end
 end
