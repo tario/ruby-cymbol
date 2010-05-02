@@ -33,6 +33,40 @@ module Cymbol
     end
   end
 
+  class ObjdumpNotFoundInSystem < Exception
+
+  end
+
+  class RubyDebugInfoNotFoundInSystem < Exception
+
+  end
+
+
+  def self.check
+    # existence of objdump
+    unless system("objdump -H > /dev/null")
+      raise ObjdumpNotFoundInSystem.new
+    end
+
+    shared_name = Cymbol.ruby_shared_name
+    debug_info_name = "/usr/lib/debug/" + shared_name
+    if File.exist?(debug_info_name)
+      shared_name = debug_info_name
+    end
+
+    unless shared_name =~ /debug/
+      raise RubyDebugInfoNotFoundInSystem.new
+    end
+
+    begin
+      Cymbol.resolv("ruby_init")
+    rescue SymbolNotFound
+      raise RubyDebugInfoNotFoundInSystem.new
+    end
+
+
+  end
+
   class Resolv
     def initialize
       shared_name = Cymbol.ruby_shared_name
@@ -63,4 +97,8 @@ module Cymbol
   def self.resolv( symbol_name )
     Cymbol::Resolv.new.resolv( symbol_name )
   end
+
+  # Check conditions at module load
+  Cymbol.check
+
 end
