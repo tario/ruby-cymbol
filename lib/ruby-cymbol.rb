@@ -23,6 +23,16 @@ require "ruby-cymbol/shared"
 require "ruby-cymbol/objdump"
 
 module Cymbol
+
+  class SymbolNotFound < Exception
+
+    attr_accessor :symbol_name
+
+    def initialize( symbol_name_ )
+      self.symbol_name = symbol_name_
+    end
+  end
+
   def self.resolv( symbol_name )
     shared_name = Cymbol.ruby_shared_name
 
@@ -35,6 +45,12 @@ module Cymbol
 
     objdump = Cymbol::Objdump.new( shared_name )
     match_symbols = objdump.symbols.select{|s| s.name == symbol_name }
+
+    first_symbol = match_symbols.first
+
+    unless first_symbol
+      raise SymbolNotFound.new(symbol_name)
+    end
 
     match_symbols.first.offset
   end
