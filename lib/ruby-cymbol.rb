@@ -21,6 +21,7 @@ along with http://github.com/tario/ruby-cymbol.  if not, see <http://www.gnu.org
 
 require "ruby-cymbol/shared"
 require "ruby-cymbol/objdump"
+require "singleton"
 
 module Cymbol
 
@@ -68,6 +69,9 @@ module Cymbol
   end
 
   class Resolv
+
+    include Singleton
+
     def initialize
       shared_name = Cymbol.ruby_shared_name
 
@@ -95,7 +99,7 @@ module Cymbol
   end
 
   def self.resolv( symbol_name )
-    Cymbol::Resolv.new.resolv( symbol_name )
+    Cymbol::Resolv.instance.resolv( symbol_name )
   end
 
   # Check conditions at module load
